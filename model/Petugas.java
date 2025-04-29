@@ -2,24 +2,18 @@ package model;
 
 public class Petugas {
     private String nama;
-    private String idPetugas;
+    private String id;
 
-    public Petugas(String nama, String idPetugas) {
+    public Petugas(String nama, String id) {
         this.nama = nama;
-        this.idPetugas = idPetugas;
+        this.id = id;
     }
 
     public String getNama() {
         return nama;
     }
 
-    public String getIdPetugas() {
-        return idPetugas;
-    }
-
-    public void tampilkanInfo() {
-        System.out.println("🧍 Petugas Aktif:");
-        System.out.println("- Nama     : " + nama);
-        System.out.println("- ID Petugas: " + idPetugas);
+    public String getId() {
+        return id;
     }
 }
