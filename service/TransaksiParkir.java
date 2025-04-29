@@ -1,50 +1,68 @@
 package service;
 
-import model.Kendaraan;
+import model.*;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.Duration;
+
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
-import java.util.UUID;
+import java.util.Map;
 
 public class TransaksiParkir {
-    private HashMap<String, Kendaraan> dataParkir = new HashMap<>();
+    private Map<String, Kendaraan> dataParkir = new HashMap<>();
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
 
-    // Simpan kendaraan yang baru masuk dan buat tiket ID-nya
-    public String kendaraanMasuk(Kendaraan kendaraan) {
-        String tiketID = UUID.randomUUID().toString().substring(0, 8); //membuat id acak
-        dataParkir.put(tiketID, kendaraan);
-        System.out.println("Tiket ID: " + tiketID + " | Plat: " + kendaraan.getPlatNomor() + " | Waktu masuk: " + kendaraan.getWaktuMasuk());
-        return tiketID;
+    public void masuk(Kendaraan kendaraan) {
+        dataParkir.put(kendaraan.getPlatNomor(), kendaraan);
+        System.out.println(kendaraan.getJenis() + " dengan plat " + kendaraan.getPlatNomor() + " masuk.");
+
+        System.out.println("\n==== TIKET PARKIR ====");
+        System.out.println("ID Parkir     : " + kendaraan.getIdParkir());
+        System.out.println("Plat Nomor    : " + kendaraan.getPlatNomor());
+        System.out.println("Jenis         : " + kendaraan.getJenis());
+        System.out.println("Waktu Masuk   : " + kendaraan.getWaktuMasuk().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+        System.out.println("=======================");
     }
 
-    //menghitung harga kendaraan keluar
-    public void kendaraanKeluar(String tiketID) {
-        if (!dataParkir.containsKey(tiketID)) {
-            System.out.println("❌ Tiket tidak ditemukan.");
-            return;
+    public void keluar(String platNomor) {
+    Kendaraan kendaraan = dataParkir.get(platNomor);
+    if (kendaraan != null) {
+        kendaraan.setJamKeluar(LocalDateTime.now()); // ⬅ pakai LocalDateTime!
+
+        // Hitung durasi
+        Duration durasi = Duration.between(kendaraan.getWaktuMasuk(), kendaraan.getJamKeluar());
+        long jam = durasi.toHours();
+        long menit = durasi.toMinutes() % 60;
+
+        int biaya = kendaraan.hitungBiaya(); // Kamu bisa hitung manual durasi di sini juga kalo mau.
+
+        // Cetak STRUK
+        System.out.println("\n==== STRUK KELUAR ====");
+        System.out.println("ID Parkir     : " + kendaraan.getIdParkir());
+        System.out.println("Plat Nomor    : " + kendaraan.getPlatNomor());
+        System.out.println("Jenis         : " + kendaraan.getJenis());
+        System.out.println("Waktu Masuk   : " + kendaraan.getWaktuMasuk().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+        System.out.println("Waktu Keluar  : " + kendaraan.getJamKeluar().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+        System.out.println("Durasi Parkir : " + jam + " jam " + menit + " menit");
+        System.out.println("Total Bayar   : Rp " + biaya);
+        System.out.println("=======================");
+        
+        dataParkir.remove(platNomor);
+    } else {
+        System.out.println("Kendaraan tidak ditemukan.");
+    }
+}
+
+    public void tampilkanData() {
+        if (dataParkir.isEmpty()) {
+            System.out.println("Tidak ada kendaraan yang sedang parkir.");
+        } else {
+            for (Map.Entry<String, Kendaraan> entry : dataParkir.entrySet()) {
+                Kendaraan k = entry.getValue();
+                String waktuFormat = k.getWaktuMasuk().format(formatter);
+                System.out.println(k.getClass().getSimpleName() + " - Plat: " + k.getPlatNomor() + ", Jam Masuk: " + waktuFormat);
+            }
         }
-
-        Kendaraan kendaraan = dataParkir.get(tiketID);
-        LocalDateTime waktuKeluar = LocalDateTime.now();
-
-        long durasi = Duration.between(kendaraan.getWaktuMasuk(), waktuKeluar).toMinutes();
-
-        long jam = durasi / 60;
-        if (durasi % 60 > 0) jam++; // pembulatan ke atas
-
-        // long jam = Duration.between(kendaraan.getWaktuMasuk(), waktuKeluar).toMinutes();
-        int total = kendaraan.hitungBiaya(jam);
-
-        System.out.println("===== Bukti Parkir =====");
-        System.out.println("Tiket ID     : " + tiketID);
-        System.out.println("Plat Nomor   : " + kendaraan.getPlatNomor());
-        System.out.println("Waktu Masuk  : " + kendaraan.getWaktuMasuk());
-        System.out.println("Waktu Keluar : " + waktuKeluar);
-        System.out.println("Durasi       : " + jam + " jam");
-        System.out.println("Total Bayar  : Rp " + total);
-        System.out.println("========================");
-
-        dataParkir.remove(tiketID);
     }
 }

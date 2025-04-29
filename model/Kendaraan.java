@@ -2,23 +2,43 @@ package model;
 
 import java.time.LocalDateTime;
 
+import util.IdGenerator;
+
 public abstract class Kendaraan {
     protected String platNomor;
-    protected LocalDateTime waktuMasuk;
+    protected String jenis;
+    protected String idParkir;
+    protected LocalDateTime jamMasuk;
+    protected LocalDateTime jamKeluar;
 
     public Kendaraan(String platNomor) {
         this.platNomor = platNomor;
-        this.waktuMasuk = LocalDateTime.now(); // otomatis tercatat saat masuk
+        this.jamMasuk = LocalDateTime.now();
+        this.idParkir = IdGenerator.generateId();
     }
+
+    public abstract int hitungBiaya();
 
     public String getPlatNomor() {
         return platNomor;
     }
 
     public LocalDateTime getWaktuMasuk() {
-        return waktuMasuk;
+        return jamMasuk;
     }
 
-    // Method abstrak, harus di-override oleh class anak
-    public abstract int hitungBiaya(long durasiJam);
+    public LocalDateTime getJamKeluar() {
+        return jamKeluar;
+    }
+    
+    public void setJamKeluar(LocalDateTime jamKeluar) {
+        this.jamKeluar = jamKeluar;
+    }
+
+    public String getJenis() {
+        return jenis;
+    }
+    public String getIdParkir() {
+        return idParkir;
+    }
 }
